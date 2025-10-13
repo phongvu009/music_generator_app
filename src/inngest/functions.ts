@@ -155,8 +155,8 @@ export const generateSong = inngest.createFunction(
         body: JSON.stringify(body),
         headers: {
           "Content-Type": "application/json",
-          "Model-Key": env.MODAL_KEY,
-          "Model-Secret": env.MODAL_SECRET,
+          "Modal-Key": env.MODAL_KEY,
+          "Modal-Secret": env.MODAL_SECRET,
         }
       })
       //update database when having data
