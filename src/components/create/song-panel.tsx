@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Textarea } from "../ui/textarea";
+import { Button } from "../ui/button"
+import { Plus } from "lucide-react"
 
 
 export function SongPanel() {
@@ -34,6 +36,19 @@ export function SongPanel() {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="EDM to have joy"
                 className="min-h-[120px] resize-none" />
+            </div>
+
+            {/* lyrics button */}
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setMode("custom")}
+              >
+                <Plus className="mr-2" />
+                Lyrics
+              </Button>
+
             </div>
 
           </TabsContent>
