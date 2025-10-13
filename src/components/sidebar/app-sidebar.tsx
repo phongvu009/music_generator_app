@@ -1,8 +1,11 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
-import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar"
-import SidebarMenuItems from "./sidebar-menu-items"
+"use server"
 
-export function AppSidebar() {
+import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar"
+import SidebarMenuItems from "./sidebar-menu-items"
+import Credits from "./credits"
+
+export async function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
@@ -18,6 +21,13 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+
+      <SidebarFooter className="mb-2 flex w-full items-center justify-center gap-1 text-xs  bg-red-200 ">
+        <div>
+          <Credits />
+        </div>
+      </SidebarFooter>
+
     </Sidebar>
   )
 }
