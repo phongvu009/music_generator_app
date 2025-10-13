@@ -4,6 +4,8 @@ import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar"
 import SidebarMenuItems from "./sidebar-menu-items"
 import Credits from "./credits"
+import { UserButton } from "@daveyplate/better-auth-ui"
+import { User } from "lucide-react"
 
 export async function AppSidebar() {
   return (
@@ -26,6 +28,16 @@ export async function AppSidebar() {
         <div>
           <Credits />
         </div>
+        <UserButton
+          variant="outline"
+          additionalLinks={[
+            {
+              label: "Customer Portal",
+              href: "/cusomter-portal",
+              icon: <User />
+            }
+          ]}
+        />
       </SidebarFooter>
 
     </Sidebar>
