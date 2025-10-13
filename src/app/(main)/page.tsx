@@ -4,9 +4,10 @@
 import { headers } from "next/headers";
 import Link from "next/link";
 // Import the initialized 'better-auth' instance.
-import { auth }  from "~/lib/auth";
+import { auth } from "~/lib/auth";
 // Import the 'redirect' function for server-side navigation.
 import { redirect } from "next/navigation";
+import CreateSong from "~/components/create"
 
 
 // This is an async Server Component, allowing us to use 'await' for data fetching.
@@ -25,8 +26,9 @@ export default async function HomePage() {
 
   // If the user is authenticated, render the main dashboard content.
   return (
-  <main className="flex min-h-screen flex-col items-center justify-center">
+    <main className="flex min-h-screen flex-col items-center justify-center">
       <p>Dashboard</p>
-  </main>
+      <CreateSong />
+    </main>
   )
 }
