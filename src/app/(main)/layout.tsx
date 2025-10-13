@@ -7,6 +7,8 @@ import { Providers } from "~/components/providers";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "~/components/ui/sidebar";
 import { AppSidebar } from "~/components/sidebar/app-sidebar";
 import { Separator } from "@radix-ui/react-separator";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "~/components/ui/breadcrumb";
+import BreadcrumbPageClient from "~/components/sidebar/breadcrumb-page-client";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -33,6 +35,14 @@ export default function RootLayout({
                 <div className="flex shrink-0 grow items-center gap-2 bg-green-200">
                   <SidebarTrigger className="-ml-1" />
                   <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+                  <Breadcrumb>
+                    <BreadcrumbList>
+                      <BreadcrumbItem>
+                        <BreadcrumbPageClient />
+                      </BreadcrumbItem>
+                    </BreadcrumbList>
+
+                  </Breadcrumb>
                 </div>
 
               </header>
