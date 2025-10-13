@@ -26,7 +26,7 @@ export default async function HomePage() {
 
   // If the user is authenticated, render the main dashboard content.
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center">
+    <main className="flex min-h-screen flex-col items-center justify-center ">
       <p>Dashboard</p>
       <CreateSong />
     </main>
