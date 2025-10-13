@@ -4,6 +4,7 @@ import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar"
 import SidebarMenuItems from "./sidebar-menu-items"
 import Credits from "./credits"
+import Upgrade from "./upgrade"
 import { UserButton } from "@daveyplate/better-auth-ui"
 import { User } from "lucide-react"
 
@@ -24,9 +25,10 @@ export async function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="mb-2 flex w-full items-center justify-center gap-1 text-xs  bg-red-200 ">
-        <div>
+      <SidebarFooter className="bg-red-200">
+        <div className="mb-2 flex w-full items-center justify-center gap-1 text-xs"  >
           <Credits />
+          <Upgrade />
         </div>
         <UserButton
           variant="outline"
@@ -40,6 +42,6 @@ export async function AppSidebar() {
         />
       </SidebarFooter>
 
-    </Sidebar>
+    </Sidebar >
   )
 }
