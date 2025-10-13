@@ -4,7 +4,9 @@ import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
 import { TabsContent } from "@radix-ui/react-tabs";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button"
+import { Switch } from "../ui/switch"
 import { Plus } from "lucide-react"
+
 
 
 export function SongPanel() {
@@ -12,6 +14,8 @@ export function SongPanel() {
   const [mode, setMode] = useState<"simple" | "custom">("simple")
   //keep track input field for song description
   const [description, setDescription] = useState("");
+  //keep track of toggle/switch instrumental
+  const [instrumental, setInstrumental] = useState(false)
 
   return (
     // This div functions as a responsive sidebar panel.
@@ -38,8 +42,9 @@ export function SongPanel() {
                 className="min-h-[120px] resize-none" />
             </div>
 
-            {/* lyrics button */}
+            {/* lyrics widget */}
             <div className="flex items-center justify-between">
+              {/* lyrics button */}
               <Button
                 variant="outline"
                 size="sm"
@@ -48,6 +53,15 @@ export function SongPanel() {
                 <Plus className="mr-2" />
                 Lyrics
               </Button>
+              {/* instrumental */}
+              <div className="flex">
+                <label className="text-sm font-medium">Instrumental</label>
+                <Switch
+                  checked={instrumental}
+                  onCheckedChange={setInstrumental}
+
+                />
+              </div>
 
             </div>
 
