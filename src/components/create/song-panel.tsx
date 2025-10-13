@@ -1,10 +1,15 @@
 "use client";
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger } from "../ui/tabs";
+import { TabsContent } from "@radix-ui/react-tabs";
+import { Textarea } from "../ui/textarea";
 
 
 export function SongPanel() {
+  //keep track tab mode
   const [mode, setMode] = useState<"simple" | "custom">("simple")
+  //keep track input field for song description
+  const [description, setDescription] = useState("");
 
   return (
     // This div functions as a responsive sidebar panel.
@@ -20,6 +25,18 @@ export function SongPanel() {
             <TabsTrigger value="custom">Custom</TabsTrigger>
 
           </TabsList>
+
+          <TabsContent value="simple" className="mt-6 space-y-6">
+            <div className="flex flex-col gap-3">
+              <label className="text-sm font-medium">Describe your song</label>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="EDM to have joy"
+                className="min-h-[120px] resize-none" />
+            </div>
+
+          </TabsContent>
 
         </Tabs>
       </div>
