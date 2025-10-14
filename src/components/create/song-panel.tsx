@@ -5,6 +5,7 @@ import { TabsContent } from "@radix-ui/react-tabs";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button"
 import { Switch } from "../ui/switch"
+import { Badge } from "../ui/badge"
 import { Plus } from "lucide-react"
 
 
@@ -15,6 +16,16 @@ const inspirationTags = [
   "Lo-fi hip hop",
   "Driving rock anthem",
   "Summer beach vibe",
+];
+
+const styleTags = [
+  "Industrial rave",
+  "Heavy bass",
+  "Orchestral",
+  "Electronic beats",
+  "Funky guitar",
+  "Soulful vocals",
+  "Ambient pads",
 ];
 
 //This will show wiget for simple tab Or custom tab
@@ -29,6 +40,24 @@ export function SongPanel() {
   const [lyricsMode, setLyricsMode] = useState<"write" | "auto">("write")
   //keep track lyrics
   const [lyrics, setLyrics] = useState("")
+  const [styleInput, setStyleInput] = useState("")
+
+  const handleStyleInputTagClick = (tag: string) => {
+    const currentTags = styleInput
+      .split(", ")
+      .map((s) => s.trim()) // removing any accidental leading or trailing whitespace.
+      .filter((s) => s); // remove any empty strin
+    //
+    if (!currentTags.includes(tag)) {
+      //Add tag to empty description without "," at the beginning
+      if (styleInput.trim() === "") {
+        setStyleInput(tag);
+      } else {
+        //add ,tag if there is a description
+        setStyleInput(styleInput + ", " + tag);
+      }
+    }
+  }
 
   const handleInspirationTagClick = (tag: string) => {
     const currentTags = description
@@ -172,9 +201,37 @@ export function SongPanel() {
               />
             </div>
 
+            {/* Style */}
+            <div className="flex flex-col gap-3">
+              <label className="text-sm font-medium">Styles</label>
+              <Textarea
+                placeholder="Enter style tags"
+                value={styleInput}
+                onChange={(e) => setStyleInput(e.target.value)}
+                className="min-h-[60px] resize-none"
+              />
+              <div className="w-full overflow-x-auto whitespace-nowrap">
+                <div className="flex gap-2 pb-2">
+                  {
+                    styleTags.map((tag) => (
+
+                      <Badge
+                        variant="secondary"
+                        key={tag}
+                        className="hover:bg-secondary/50 flex-shrink-0 cursor-pointer text-sm"
+                        onClick={() => handleStyleInputTagClick(tag)}
+                      >{tag}</Badge>))
+                  }
+                </div>
+              </div>
+            </div>
+
           </TabsContent>
 
         </Tabs>
+      </div>
+
+      <div className="">
       </div>
     </div>
   )
