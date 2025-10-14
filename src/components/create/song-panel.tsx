@@ -17,6 +17,7 @@ const inspirationTags = [
   "Summer beach vibe",
 ];
 
+//This will show wiget for simple tab Or custom tab
 export function SongPanel() {
   //keep track tab mode
   const [mode, setMode] = useState<"simple" | "custom">("simple")
@@ -24,10 +25,14 @@ export function SongPanel() {
   const [description, setDescription] = useState("");
   //keep track of toggle/switch instrumental
   const [instrumental, setInstrumental] = useState(false)
+  //keep track lyrics mode
+  const [lyricsMode, setLyricsMode] = useState<"write" | "auto">("write")
+  //keep track lyrics
+  const [lyrics, setLyrics] = useState("")
 
   const handleInspirationTagClick = (tag: string) => {
     const currentTags = description
-      .split(",")
+      .split(", ")
       .map((s) => s.trim()) // removing any accidental leading or trailing whitespace.
       .filter((s) => s); // remove any empty strin
     //
@@ -56,7 +61,7 @@ export function SongPanel() {
             <TabsTrigger value="custom">Custom</TabsTrigger>
 
           </TabsList>
-
+          {/* show child content for tab clicked */}
           <TabsContent value="simple" className="mt-6 space-y-6">
             <div className="flex flex-col gap-3">
               <label className="text-sm font-medium">Describe your song</label>
@@ -110,6 +115,61 @@ export function SongPanel() {
                   ))}
                 </div>
               </div>
+            </div>
+
+          </TabsContent>
+
+          <TabsContent value="custom" className="mt-6 space-y-6 bg-blue-300">
+            {/* lyrics widget */}
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between ">
+                <label className="text-sm font-medium">Lyrics</label>
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    className="h-7 text-xs"
+                    variant={lyricsMode === "auto" ? "secondary" : "ghost"}
+                    onClick={() => {
+                      setLyricsMode("auto");
+                      setLyrics("");
+                    }}
+                  >Auto
+                  </Button>
+
+                  <Button
+                    size="sm"
+                    className="h-7 text-xs"
+                    variant={lyricsMode === "write" ? "secondary" : "ghost"}
+                    onClick={() => {
+                      setLyricsMode("write");
+                      setLyrics("");
+                    }}
+                  >Write
+                  </Button>
+                </div>
+              </div>
+
+              {/* input text */}
+              <Textarea
+                placeholder={
+                  lyricsMode === "write"
+                    ? "Add your own lyric here"
+                    : "Describe about your song: (e.g., a wonderful day ...)to genereate lyrics"
+                }
+                value={lyrics}
+                onChange={(e) => setLyrics(e.target.value)}
+                className="min-h-[120px]"
+              />
+            </div>
+
+            {/* instrumental */}
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Instrumental</label>
+              <Switch
+                checked={instrumental}
+                onCheckedChange={setInstrumental}
+
+              />
             </div>
 
           </TabsContent>
