@@ -6,7 +6,9 @@ import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button"
 import { Switch } from "../ui/switch"
 import { Badge } from "../ui/badge"
-import { Plus } from "lucide-react"
+import { Loader2, Music, Plus } from "lucide-react"
+import { toast } from "sonner";
+import { generateSong, type GenerateRequest } from "~/actions/generation";
 
 
 const inspirationTags = [
@@ -41,6 +43,7 @@ export function SongPanel() {
   //keep track lyrics
   const [lyrics, setLyrics] = useState("")
   const [styleInput, setStyleInput] = useState("")
+  const [loading, setLoading] = useState(false)
 
   const handleStyleInputTagClick = (tag: string) => {
     const currentTags = styleInput
@@ -74,6 +77,65 @@ export function SongPanel() {
         setDescription(description + ", " + tag);
       }
     }
+  }
+
+  const handleCreate = async () => {
+    //Falsy values: "" (empty string), 0, false, null, undefined.
+    //if decription is empty
+    if (mode === "simple" && !description.trim()) {
+      toast.error("Please describe your song before creating")
+      return
+    }
+    if (mode === "custom" && !styleInput.trim()) {
+      toast.error("Please fill in styles")
+      return
+    }
+    //Generate Song
+    let requestBody: GenerateRequest;
+
+    //Update requestBody using state which is kept tracked by react hook
+
+    if (mode === "simple") {
+      requestBody = {
+        fullDescribedSong: description,
+        instrumental: instrumental
+
+      }
+    } else {
+      //for custom mode
+      const prompt = styleInput;
+      if (lyricsMode === "write") {
+        //manual lyric
+        requestBody = {
+          prompt,
+          lyrics,
+          instrumental
+        }
+      } else {
+        //auto lyrics
+        requestBody = {
+          prompt,
+          describedLyrics: lyrics,
+          instrumental,
+        }
+      }
+    }
+
+    try {
+      setLoading(true);
+      await generateSong(requestBody);
+      setDescription("");
+      setLyrics("");
+      setStyleInput("");
+    } catch (error) {
+      toast.error("Failed to genreate song")
+
+    } finally {
+      setLoading(false)
+
+    }
+
+
   }
 
   return (
@@ -148,7 +210,7 @@ export function SongPanel() {
 
           </TabsContent>
 
-          <TabsContent value="custom" className="mt-6 space-y-6 bg-blue-300">
+          <TabsContent value="custom" className="mt-6 space-y-6">
             {/* lyrics widget */}
             <div className="flex flex-col gap-3">
               <div className="flex items-center justify-between ">
@@ -230,8 +292,14 @@ export function SongPanel() {
 
         </Tabs>
       </div>
-
-      <div className="">
+      {/* Button to submit/create */}
+      <div className="border-t p-4">
+        <Button
+          disabled={loading}
+          onClick={handleCreate}
+          className="w-full cursor-pointer bg-gradient-to-r from-orange-500 to-pink-500 font-medium text-white hover:from-orange-600 hover:to-pink-600">
+          {loading ? <Loader2 className="animate-spin" /> : <Music />}
+          {loading ? "Creating...." : "Create"}</Button>
       </div>
     </div>
   )
