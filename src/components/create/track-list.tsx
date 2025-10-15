@@ -6,12 +6,15 @@ import {
   RefreshCcw,
   XCircle,
   Music,
+  Play
 
 } from "lucide-react"
 import { Input } from "../ui/input"
 import { useState } from "react"
 import { Button } from "../ui/button"
-import { getPlayUrl } from "~/actions/generation";}
+import { getPlayUrl } from "~/actions/generation";
+import { Badge } from "../ui/badge"
+import setPublishedStatus from "~/actions/song";
 
 
 
@@ -156,6 +159,38 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
                           )
 
                         }
+                        {/* dim when hover */}
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 ">
+                          {
+                            loadingTrackId === track.id
+                              ? (<Loader2 className="animate-spin text-white" />)
+                              : (<Play className="fill-white text-white" />)
+                          }
+                        </div>
+                      </div>
+
+                      {/* Track Info */}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <h3 className="truncate text-sm font-medium">{track.title}</h3>
+                          {track.instrumental && (<Badge variant="outline">Instrumental</Badge>)}
+                        </div>
+                        <p className="text-muted-foreground truncate text-xs">{track.prompt}</p>
+                      </div>
+
+                      {/* publish Button - stopPropagation avoid trigger parent div to play at the same time */}
+                      <div className="flex items-center gap-2">
+                        <Button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            await setPublishedStatus(
+                              track.id,
+                              !track.published
+                            )
+                          }}
+                          variant="outline" size="sm" className={`cursor-pointer ${track.published ? "border-red-200" : ""}`}>
+                          {track.published ? "unpublish" : "Publish"}
+                        </Button>
                       </div>
                     </div>
                   )
