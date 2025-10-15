@@ -5,6 +5,9 @@ import { db } from "~/server/db";
 import { auth } from "~/lib/auth"
 import { inngest } from "~/inngest/client"
 import { revalidatePath } from "next/cache";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { env } from "~/env"
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 
 /**
  * Defines the structure for a song generation request.
@@ -59,7 +62,7 @@ export async function queueSong(
   if (generateRequest.describedLyrics) title = generateRequest.describedLyrics
   // If a full song was described, use that for the title as it's more specific.
   if (generateRequest.fullDescribedSong) title = generateRequest.fullDescribedSong
-  
+
   // Capitalize the first letter of the title for consistent formatting.
   title = title.charAt(0).toUpperCase() + title.slice(1)
 
@@ -83,4 +86,25 @@ export async function queueSong(
     data: { songId: song.id, userId: song.userId }
   })
 
+
+}
+
+//get data fromaws s3 bucket
+export async function getPresignedUrl(key: string) {
+  const s3Client = new S3Client({
+    region: env.AWS_REGION,
+    credentials: {
+      accessKeyId: env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: env.AWS_SECRET_ACCESS_KEY_ID,
+    }
+  })
+
+  const command = new GetObjectCommand({
+    Bucket: env.S3_BUCKET_NAME,
+    Key: key,
+  })
+
+  return await getSignedUrl(s3Client, command, {
+    expiresIn: 3600
+  })
 }

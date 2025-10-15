@@ -109,7 +109,7 @@ export const generateSong = inngest.createFunction(
 
       //Custom Mode : lyrics + prompt
       else if (song.lyrics && song.prompt) {
-        endpoint = env.GENERATE_FROM_DESCRIBED_LYRICS;
+        endpoint = env.GENERATE_WITH_LYRICS;
         body = {
           lyrics: song.lyrics,
           prompt: song.prompt,
