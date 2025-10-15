@@ -89,6 +89,42 @@ export async function queueSong(
 
 }
 
+export async function getPlayUrl(songId: string) {
+  const session = await auth.api.getSession({
+    headers: await headers()
+  })
+
+  if (!session) redirect("/auth/sign-in")
+
+  const song = await db.song.findUniqueOrThrow({
+    where: {
+      id: songId,
+      OR: [{ userId: session.user.id }, { published: true }],
+      s3Key: {
+        not: null
+      },
+    },
+    select: {
+      s3Key: true,
+    }
+  })
+  //update database
+  await db.song.update({
+    where: {
+      id: songId
+    },
+    data: {
+      listenCount: {
+        increment: 1,
+      }
+    }
+  })
+
+  return await getPresignedUrl(song.s3Key!)
+
+
+}
+
 //get data fromaws s3 bucket
 export async function getPresignedUrl(key: string) {
   const s3Client = new S3Client({

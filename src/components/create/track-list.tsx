@@ -4,12 +4,14 @@ import {
   Search,
   Loader2,
   RefreshCcw,
-  XCircle
+  XCircle,
+  Music,
 
 } from "lucide-react"
 import { Input } from "../ui/input"
 import { useState } from "react"
 import { Button } from "../ui/button"
+import { getPlayUrl } from "~/actions/generation";}
 
 
 
@@ -33,11 +35,23 @@ export interface Track {
 export function TrackList({ tracks }: { tracks: Track[] }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null)
 
   const filteredTracks = tracks.filter((track) =>
     track.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     track.prompt?.toLowerCase().includes(searchQuery.toLowerCase()),
   )
+
+  const handleTrackSelect = async (track: Track) => {
+    if (loadingTrackId) return;
+
+    setLoadingTrackId(track.id)
+    const playUrl = await getPlayUrl(track.id)
+    setLoadingTrackId(null)
+
+    //play
+    console.log(playUrl)
+  }
 
   return (
     <div className="flex flex-1 flex-col">
@@ -118,6 +132,33 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
                     </div>
 
                   </div>
+
+                default:
+                  return (
+                    <div
+                      key={track.id}
+                      className="hover:bg-muted/50 flex cursor-pointer items-center gap-4 rounded-lg p-3 transition-colors"
+                      onClick={() => handleTrackSelect(track)}
+                    >
+                      {/* Thumbnail */}
+                      <div className="group relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-md">
+                        {false
+                          ? (
+                            <img
+                              className="h-full w-full object-cover "
+                              src={track.thumbnailUrl}
+                            />
+                          )
+                          : (
+                            <div className="bg-muted flex h-full w-full items-center justify-center">
+                              <Music className="text-muted-foreground h-6 w-6" />
+                            </div>
+                          )
+
+                        }
+                      </div>
+                    </div>
+                  )
               }
             }))
             : <></>}
