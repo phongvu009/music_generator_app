@@ -6,7 +6,10 @@ import {
   RefreshCcw,
   XCircle,
   Music,
-  Play
+  Play,
+  MoreHorizontal,
+  Download,
+  Pencil
 
 } from "lucide-react"
 import { Input } from "../ui/input"
@@ -14,8 +17,14 @@ import { useState } from "react"
 import { Button } from "../ui/button"
 import { getPlayUrl } from "~/actions/generation";
 import { Badge } from "../ui/badge"
-import setPublishedStatus from "~/actions/song";
-
+import { renameSong, setPublishedStatus } from "~/actions/song";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { RenameDialog } from "./rename-dialog";
 
 
 export interface Track {
@@ -39,6 +48,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
   const [searchQuery, setSearchQuery] = useState("")
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null)
+  const [trackToRename, setTrackToRename] = useState<Track | null>(null)
 
   const filteredTracks = tracks.filter((track) =>
     track.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -191,6 +201,29 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
                           variant="outline" size="sm" className={`cursor-pointer ${track.published ? "border-red-200" : ""}`}>
                           {track.published ? "unpublish" : "Publish"}
                         </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                              <MoreHorizontal />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuItem onClick={async (e) => {
+                              e.stopPropagation()
+                              const playUrl = await getPlayUrl(track.id);
+                              window.open(playUrl, "_blank")
+                            }}>
+                              <Download className="mr-2" /> Download
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem onClick={async (e) => {
+                              e.stopPropagation()
+                              setTrackToRename(track);
+                            }}>
+                              <Pencil className="mr-2" /> Rename
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </div>
                   )
@@ -200,6 +233,14 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
         </div>
 
       </div>
+
+      {trackToRename && (
+        <RenameDialog
+          track={trackToRename}
+          onClose={() => setTrackToRename(null)}
+          onRename={(trackId, newTitle) => renameSong(trackId, newTitle)}
+        />
+      )}
     </div>
   )
 }
