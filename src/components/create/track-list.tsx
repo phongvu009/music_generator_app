@@ -95,7 +95,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
 
         {/* Track List */}
         <div className="space-y-2">
-          {filteredTracks.length > 0
+          {filteredTracks.length < 0
             ? (filteredTracks.map((track) => {
               switch (track.status) {
                 case "failed":
@@ -229,7 +229,17 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
                   )
               }
             }))
-            : <></>}
+            : (
+              <div className="flex flex-col items-center justify-center pt-20 text-center">
+                <Music className="text-muted-foreground h-10 w-10" />
+                <h2 className="mt-4 text-lg font-semibold">No Music</h2>
+                <p className="text-muted-foreground mt-1 text-sm">{searchQuery
+                  ? "no tracks match your search"
+                  : "Create your first song to get started"
+
+                }</p>
+              </div>
+            )}
         </div>
 
       </div>

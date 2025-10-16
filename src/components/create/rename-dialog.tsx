@@ -58,7 +58,7 @@ export function RenameDialog({
             </div>
           </div>
 
-          <DialogFooter className="flex flex-1 ">
+          <DialogFooter>
             <DialogClose asChild>
               <Button variant="outline" type="button">
                 Cancel
