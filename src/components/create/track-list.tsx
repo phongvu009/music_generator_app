@@ -25,7 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { RenameDialog } from "./rename-dialog";
-
+import { useRouter } from "next/navigation"
 
 export interface Track {
   id: string;
@@ -49,6 +49,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [loadingTrackId, setLoadingTrackId] = useState<string | null>(null)
   const [trackToRename, setTrackToRename] = useState<Track | null>(null)
+  const router = useRouter()
 
   const filteredTracks = tracks.filter((track) =>
     track.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -64,6 +65,12 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
 
     //play
     console.log(playUrl)
+  }
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true)
+    router.refresh()
+    setTimeout(() => setIsRefreshing(false), 1000)
   }
 
   return (
@@ -82,7 +89,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
             disabled={isRefreshing}
             variant="outline"
             size="sm"
-            onClick={() => { }}
+            onClick={handleRefresh}
           >
             {
               isRefreshing
@@ -95,7 +102,7 @@ export function TrackList({ tracks }: { tracks: Track[] }) {
 
         {/* Track List */}
         <div className="space-y-2">
-          {filteredTracks.length < 0
+          {filteredTracks.length > 0
             ? (filteredTracks.map((track) => {
               switch (track.status) {
                 case "failed":
