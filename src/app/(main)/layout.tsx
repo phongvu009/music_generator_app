@@ -9,6 +9,7 @@ import { AppSidebar } from "~/components/sidebar/app-sidebar";
 import { Separator } from "@radix-ui/react-separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList } from "~/components/ui/breadcrumb";
 import BreadcrumbPageClient from "~/components/sidebar/breadcrumb-page-client";
+import SoundBar from "~/components/sound-bar";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -49,6 +50,9 @@ export default function RootLayout({
               <main className="flex-1 overflow-y-auto bg-blue-200">
                 {children}
               </main>
+
+              <SoundBar/>
+          
 
             </SidebarInset>
           </SidebarProvider>
