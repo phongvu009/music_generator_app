@@ -8,14 +8,105 @@ import { Button } from "./ui/button"
 import { Slider } from "./ui/slider"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "./ui/dropdown-menu"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 
 export default function SoundBar() {
   //Get Info of current play song from Player Store
   const { track } = usePlayerStore()
   //keep track of playing state of current selected song 
   const [isPlaying, setIsPlaying] = useState(false)
-  const { volume, setVolume } = useState([100])
+  const [volume, setVolume] = useState([100])
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
+  //create a ref , attach to HTML tag, that tag will access function in useEffect when component mount
+  const audioRef = useRef<HTMLAudioElement>(null)
+
+  //For player slider
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return;
+
+    const updateTime = () => setCurrentTime(audio.currentTime)
+    const updateDuration = () => {
+      if (!isNaN(audio.duration)) {
+        setDuration(audio.duration)
+      }
+    }
+    //reset time
+    const handleTrackEnd = () => {
+      setIsPlaying(false)
+      setCurrentTime(0)
+    }
+
+    //
+    audio.addEventListener("timeupdate", updateTime)
+    audio.addEventListener("loadedmetadata", updateDuration)
+    audio.addEventListener("ended", handleTrackEnd)
+
+    return () => {
+      audio.removeEventListener("timeupdate", updateTime)
+      audio.removeEventListener("loadedmetadata", updateDuration)
+      audio.removeEventListener("ended", handleTrackEnd)
+    }
+  }, [track])
+
+  //whenever track is changed, the audio value will be changed - audio compoent not re-render
+  useEffect(() => {
+    if (audioRef.current && track?.url) {
+      setCurrentTime(0)
+      setDuration(0)
+
+      audioRef.current.src = track.url
+      audioRef.current.load()
+
+      const playPromise = audioRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          setIsPlaying(true)
+        })
+          .catch((error) => {
+            console.log("playback failed: ", error)
+            setIsPlaying(false)
+          })
+      }
+
+    }
+  }, [track])
+
+  //For Volume
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume[0]! / 100
+    }
+  }, [volume])
+
+  const togglePlay = () => {
+    if (!track?.url || !audioRef.current) return;
+
+    if (isPlaying) {
+      audioRef.current.pause()
+      setIsPlaying(false)
+    } else {
+      audioRef.current.play()
+      setIsPlaying(true)
+    }
+  }
+
+  const handleSleek = (value: number[]) => {
+    if (audioRef.current && value[0] !== undefined) {
+      audioRef.current.currentTime = value[0]
+      setCurrentTime(value[0])
+    }
+  }
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60)
+    const seconds = Math.floor(time % 60)
+    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  }
+
+  //not showing sound-bar if no track selected 
+  if (!track) return null;
 
   return (
     <div className="px-4 pb-2">
@@ -52,7 +143,7 @@ export default function SoundBar() {
 
             {/* Play Icon */}
             <div className="absolute left-1/2 -translate-x-1/2">
-              <Button variant="ghost" size="icon">
+              <Button variant="ghost" size="icon" onClick={togglePlay}>
                 {
                   isPlaying
                     ? <Pause className="h-4 w-4" />
@@ -92,9 +183,31 @@ export default function SoundBar() {
               </DropdownMenu>
             </div>
 
+
+          </div>
+          {/* song duration line */}
+          <div className="flex items-center gap-1">
+            <span className="text-muted-foreground w-8 text-right text-[10px]">
+              {formatTime(currentTime)}
+            </span>
+            <Slider
+              className="flex-1"
+              value={[currentTime]}
+              max={duration || 100}
+              step={1}
+              onValueChange={handleSleek}
+            />
+
+            <span className="text-muted-foreground w-8 text-right text-[10px]">
+              {formatTime(duration)}
+            </span>
+
           </div>
 
         </div>
+        {track?.url && (
+          <audio ref={audioRef} src={track.url} preload="metadata" />
+        )}
 
       </Card>
     </div>
