@@ -13,6 +13,7 @@ import { getPresignedUrl } from "~/actions/generation";
 import { db } from "~/server/db";
 
 import { Music } from "lucide-react"
+import { SongCard } from "~/components/home/song-card";
 
 
 // This is an async Server Component, allowing us to use 'await' for data fetching.
@@ -58,6 +59,7 @@ export default async function HomePage() {
     take: 100,
   })
 
+  console.log("songs from db:", songs)
 
   // For each song that has an S3 key for its thumbnail, fetch a
   // presigned URL so the client can load the image directly from S3.
@@ -78,7 +80,7 @@ export default async function HomePage() {
   twoDaysAgo.setDate(twoDaysAgo.getDate() - 2)
 
   const trendingSongs = songsWithUrls
-    .filter((song) => song.createdAt >= twoDaysAgo)
+    .filter((song) => song.createdAt <= twoDaysAgo)
     .slice(0, 10)
 
   const trendingSongIds = new Set(trendingSongs.map((song) => song.id))
@@ -100,7 +102,9 @@ export default async function HomePage() {
 
     }, {} as Record<string, Array<(typeof songsWithUrls)[number]>>,)
 
-  if (trendingSongs === 0 && Object.keys(categorizedSongs).length === 0) {
+  // if (trendingSongs.length === 0 && Object.keys(categorizedSongs).length === 0) {
+
+  if (false) {
     return (
       <div className="flex h-full flex-col items-center justify-center p-4 text-center">
         <Music className="text-muted-foreground h-20 w-20" />
@@ -117,7 +121,23 @@ export default async function HomePage() {
 
   // If the user is authenticated, render the main dashboard content.
   return (
-    <div>
+    <div className="p-4">
+      <h1 className="text-3xl font-bold tracking-tight">
+        Discover Music
+      </h1>
+
+      {/* Treding Songs */}
+      {trendingSongs.length > 0 && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold"> Treding</h2>
+          <div className="mt-4 grid grid_cols-2 gap-x-4 gap-x-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 ">
+            {trendingSongs.map((song) => (
+              <SongCard key={song.id} song={song} />
+
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
