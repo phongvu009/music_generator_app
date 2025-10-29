@@ -83,7 +83,7 @@ export function SongCard({ song }: { song: SongWithRelation }) {
     //change count 
     setLikesCount(isLiked ? likesCount - 1 : likesCount + 1)
 
-    //update database
+    //update database: add/remove like
     await toggleLikeSong(song.id)
 
   }

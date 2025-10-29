@@ -12,11 +12,21 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner"
 /**
  * Defines the structure for a song generation request.
  */
+/**
+ * Request payload used when queuing a song generation.
+ * All fields are optional; the server will pick the best available
+ * title/metadata from the provided properties.
+ */
 export interface GenerateRequest {
+  /** Free-form prompt guiding the model */
   prompt?: string;
+  /** Raw lyrics provided by the user (may be partial) */
   lyrics?: string;
+  /** Longer, fully described song text used to generate title/metadata */
   fullDescribedSong?: string;
+  /** Short description of the lyrics used for title fallback */
   describedLyrics?: string;
+  /** Whether the song should be instrumental (no vocals) */
   instrumental?: boolean;
 
 }
@@ -26,6 +36,15 @@ export interface GenerateRequest {
  * then queues two song generation tasks with different guidance scales.
  * @param generateRequest The request object containing song generation parameters.
  */
+/**
+ * Server action that queues song generation jobs for the authenticated user.
+ * It creates two queued jobs with different guidance scales to produce
+ * varied results.
+ *
+ * Redirects to the sign-in page if there's no authenticated session.
+ *
+ * @param generateRequest - Parameters guiding the generation pipeline.
+ */
 export async function generateSong(generateRequest: GenerateRequest) {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -33,13 +52,11 @@ export async function generateSong(generateRequest: GenerateRequest) {
 
   if (!session) redirect("/auth/sign-in");
 
+  // Queue two variants so the user receives multiple generated results.
   await queueSong(generateRequest, 7.5, session.user.id)
   await queueSong(generateRequest, 15, session.user.id)
 
-  // Revalidate the '/create' page path to reflect the newly queued songs in the UI.
-  //to refresh cached data for a specific route or page.
-  //when the user visits or reloads that page, it fetches fresh data from the database or API.
-  //After queueing new songs, ensure /create shows them
+  // Refresh the /create page cache so newly queued songs appear in the UI.
   revalidatePath("/create")
 }
 
@@ -49,6 +66,14 @@ export async function generateSong(generateRequest: GenerateRequest) {
  * @param generateRequest The request object containing song generation parameters.
  * @param guidanceScale The guidance scale for the generation model.
  * @param userId The ID of the user requesting the song.
+ */
+/**
+ * Insert a song record into the database and send an event to the
+ * background worker (Inngest) to process generation.
+ *
+ * @param generateRequest - Song generation parameters.
+ * @param guidanceScale - Model guidance scale used during generation.
+ * @param userId - Owner user id for the created song record.
  */
 export async function queueSong(
   generateRequest: GenerateRequest,
@@ -89,6 +114,16 @@ export async function queueSong(
 
 }
 
+/**
+ * Retrieve a temporary, signed URL that allows the client to stream/play
+ * the generated audio file from S3. Only the song owner or a published
+ * song may be accessed.
+ *
+ * This function also increments the listen counter for analytics.
+ *
+ * @param songId - The ID of the song to fetch the play URL for.
+ * @returns A presigned S3 URL valid for the configured expiry.
+ */
 export async function getPlayUrl(songId: string) {
   const session = await auth.api.getSession({
     headers: await headers()
@@ -108,7 +143,7 @@ export async function getPlayUrl(songId: string) {
       s3Key: true,
     }
   })
-  //update database
+  // Increment listen count to track plays.
   await db.song.update({
     where: {
       id: songId
@@ -126,6 +161,13 @@ export async function getPlayUrl(songId: string) {
 }
 
 //get data fromaws s3 bucket
+/**
+ * Create a presigned GET URL for an S3 object. The URL expires after 1 hour
+ * by default and is used for streaming or temporary downloads.
+ *
+ * @param key - The S3 object key to sign.
+ * @returns A signed URL string.
+ */
 export async function getPresignedUrl(key: string) {
   const s3Client = new S3Client({
     region: env.AWS_REGION,
