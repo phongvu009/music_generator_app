@@ -15,7 +15,7 @@ export default async function TrackListFetcher() {
   if (!session) {
     redirect("/auth/sign-in")
   }
-
+  //query sql database
   const songs = await db.song.findMany({
     where: { userId: session?.user?.id },
     include: {
@@ -28,7 +28,7 @@ export default async function TrackListFetcher() {
     }
   })
 
-  //
+  //get url,thumbnail from s3
   const songsWithThumbnails = await Promise.all(
     songs.map(async (song) => {
       const thumbnailUrl = song.thumbnailS3Key
