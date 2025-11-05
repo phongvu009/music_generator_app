@@ -52,6 +52,11 @@ export default async function HomePage() {
         }
       },
       categories: true,
+      likes: session.user.id ? {
+        where: {
+          userId : session.user.id ,
+        }
+      } : false
     },
     orderBy: {
       createdAt: "desc",

@@ -1,5 +1,5 @@
 "use client"
-import type { Category, Song } from "@prisma/client"
+import type { Category,Like, Song } from "@prisma/client"
 import { useState } from "react"
 import { getPlayUrl } from "~/actions/generation"
 import { usePlayerStore } from "~/stores/use-player-store"
@@ -21,6 +21,7 @@ type SongWithRelation = Song & {
   }
   categories: Category[];
   thumbnailUrl?: string | null;
+  likes? : Like[]
 }
 
 
@@ -41,7 +42,7 @@ export function SongCard({ song }: { song: SongWithRelation }) {
   // Local loading state while we fetch the play URL.
   const [isLoading, setIsLoading] = useState(false)
   //Track likes 
-  const [isLiked, setIsLiked] = useState(song._count.likes > 0 ? true : false)
+  const [isLiked, setIsLiked] = useState(song.likes ? song.likes.length > 0 : false)
   const [likesCount, setLikesCount] = useState(song._count.likes)
 
   // Get the setter from the player store. `setTrack` expects an object with
