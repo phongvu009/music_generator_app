@@ -30,7 +30,9 @@ export default function RootLayout({
       <body>
         <Providers>
           <SidebarProvider>
+            {/* Sidebar */}
             <AppSidebar />
+
             <SidebarInset className="flex h-screen flex-col">
               <header className="bg-background sticky-top z-10 border-b px-4 py-2 ">
                 <div className="flex shrink-0 grow items-center gap-2 bg-green-200">
