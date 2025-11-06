@@ -7,7 +7,8 @@ import { Polar } from "@polar-sh/sdk";
 import { env } from "~/env"
 
 const polarClient = new Polar({
-  accessToken: env.POLAR_WEBHOOK_SECRET,
+  // Use the Polar API access token for client operations (not the webhook secret).
+  accessToken: env.POLAR_ACCESS_TOKEN,
   server: 'sandbox'
 })
 
@@ -24,6 +25,15 @@ export const auth = betterAuth({
   ].filter(Boolean) as string[],
   emailAndPassword: {
     enabled: true,
+    // Provide a minimal sendResetPassword handler so the "request-password-reset" endpoint is enabled.
+    // In production you should send a real email. For local dev we just log the reset URL.
+    sendResetPassword: async ({ user, url, token }, req) => {
+      // eslint-disable-next-line no-console
+      console.log(`[dev] Password reset requested for user=${user.email} token=${token} url=${url}`);
+      return;
+    },
+    // token expiry in seconds (e.g., 1 hour)
+    resetPasswordTokenExpiresIn: 60 * 60,
   },
   // ... Better Auth config
   plugins: [
@@ -52,8 +62,7 @@ export const auth = betterAuth({
         portal(),
         usage(),
         webhooks({
-          secret: env.POLAR_WE
-          ,
+          secret: env.POLAR_WEBHOOK_SECRET,
           onOrderPaid: async (order) => {
             const externalCustomerId = order.data.customer.externalId;
 
