@@ -2,11 +2,12 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "~/server/db";
 import { polar, checkout, portal, usage, webhooks } from "@polar-sh/better-auth";
+import { POLAR_PRODUCTS } from "~/lib/constants";
 import { Polar } from "@polar-sh/sdk";
 import { env } from "~/env"
 
 const polarClient = new Polar({
-  accessToken: env.POLAR_ACCESS_TOKEN,
+  accessToken: env.POLAR_WEBHOOK_SECRET,
   server: 'sandbox'
 })
 
@@ -33,16 +34,16 @@ export const auth = betterAuth({
         checkout({
           products: [
             {
-              productId: "747fdb87-5be4-4dbe-bc14-0044e4dfd1bd", // ID of Product from Polar Dashboard
-              slug: "small" // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
+              productId: POLAR_PRODUCTS.SMALL.id, // ID of Product from Polar Dashboard
+              slug: POLAR_PRODUCTS.SMALL.slug // Custom slug for easy reference in Checkout URL, e.g. /checkout/pro
             },
             {
-              productId: "6169a291-218a-48b0-9c31-ab407c935aa9",
-              slug: "medium"
+              productId: POLAR_PRODUCTS.MEDIUM.id,
+              slug: POLAR_PRODUCTS.MEDIUM.slug
             },
             {
-              productId: "1f3b53ed-75c8-42bc-aa18-43d584e099de",
-              slug: "large"
+              productId: POLAR_PRODUCTS.LARGE.id,
+              slug: POLAR_PRODUCTS.LARGE.slug
             }
           ],
           successUrl: "/",
@@ -51,7 +52,8 @@ export const auth = betterAuth({
         portal(),
         usage(),
         webhooks({
-          secret: env.POLAR_ACCESS_TOKEN,
+          secret: env.POLAR_WE
+          ,
           onOrderPaid: async (order) => {
             const externalCustomerId = order.data.customer.externalId;
 
@@ -65,14 +67,14 @@ export const auth = betterAuth({
             let creditsToAdd = 0
 
             switch (productId) {
-              case "747fdb87-5be4-4dbe-bc14-0044e4dfd1bd":
-                creditsToAdd = 10;
+              case POLAR_PRODUCTS.SMALL.id:
+                creditsToAdd = POLAR_PRODUCTS.SMALL.credits;
                 break
-              case "6169a291-218a-48b0-9c31-ab407c935aa9":
-                creditsToAdd = 25;
+              case POLAR_PRODUCTS.MEDIUM.id:
+                creditsToAdd = POLAR_PRODUCTS.MEDIUM.credits;
                 break
-              case "1f3b53ed-75c8-42bc-aa18-43d584e099de":
-                creditsToAdd = 50
+              case POLAR_PRODUCTS.LARGE.id:
+                creditsToAdd = POLAR_PRODUCTS.LARGE.credits;
                 break
             }
 
